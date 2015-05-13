@@ -1,7 +1,9 @@
 ---
 title: Geospatial data analysis using python
-layout: post
+layout: default
 ---
 
+This is a list of tutorials about using python and the associated modules (gdal, rasterio, fiona, numpy, etc) for geospatial data analysis.
+
 # List of tutorials
-- [Calculating NDVI using rasterio](dutri001.github.io/pyLandsat/NDVI_calc.html)
+- [Calculating NDVI using rasterio](NDVI_calc.html)

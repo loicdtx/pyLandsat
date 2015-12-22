@@ -179,10 +179,10 @@ div#notebook {
 <h1 id="Preparing-MODIS-data">Preparing MODIS data<a class="anchor-link" href="#Preparing-MODIS-data">&#182;</a></h1><p>We'll try to setup a workflow for dealing with MODIS data.</p>
 <p>The different steps of the workflow include:</p>
 <ul>
-<li>Downloading the data (the entire MODIS archive is stored on a USGS FTP server which can be directly accessed anonymously; and there's a python library that can help us do that)</li>
-<li>Reading the datasets: MODIS data come as HDF4, which adds a bit of complexity to reading the data (HDF4 is also the reason we are not using rasterio, which does not seem to support the HDF4 driver yet)</li>
+<li>Downloading the data (the entire MODIS archive is stored on a USGS FTP server which can be accessed anonymously by anyone; and there's a python library that can help us do that)</li>
+<li>Reading the datasets: MODIS data come as HDF4, which adds a bit of complexity to reading the data (HDF4 is also the reason we are not using rasterio, which does not seem to play well with the HDF4 driver yet)</li>
 <li>Crop the data (in case you do not want the full 1200x1200 km extent of a MODIS tile)</li>
-<li>Filter cloud and bad quality data (MODIS always come with some quality assessment layer which provides pixel wise quality information of the data).</li>
+<li>Filter cloud and bad quality data (MODIS always come with some quality assessment layers which provide pixel wise quality information on the data).</li>
 </ul>
 
 </div>
@@ -201,7 +201,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[4]:</div>
+<div class="prompt input_prompt">In&nbsp;[2]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">pymodis</span> <span class="kn">import</span> <span class="n">downmodis</span>
@@ -256,7 +256,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[50]:</div>
+<div class="prompt input_prompt">In&nbsp;[3]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="kn">from</span> <span class="nn">osgeo</span> <span class="kn">import</span> <span class="n">gdal</span>
@@ -295,7 +295,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[51]:</div>
+<div class="prompt input_prompt">In&nbsp;[4]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="c"># Every subdataset is represented by a tupple; we only need the first element of that tupple to read the datasets with gdal.Open</span>
@@ -322,7 +322,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[52]:</div>
+<div class="prompt input_prompt">In&nbsp;[11]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="c"># Define offsets and width of data chunck we want to read as array</span>
@@ -331,18 +331,14 @@ div#notebook {
 <span class="n">xOff</span> <span class="o">=</span> <span class="mi">400</span>
 <span class="n">yOff</span> <span class="o">=</span> <span class="mi">400</span>
 
-<span class="c"># Allocate zero arrays of the desired size</span>
-<span class="n">vi_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int16</span><span class="p">)</span>
-<span class="n">QA_np</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">int8</span><span class="p">)</span>
-
 <span class="c"># Read data in arrays</span>
 <span class="c"># NDVI</span>
 <span class="n">vi_src</span> <span class="o">=</span> <span class="n">gdal</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">sds</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">vi_np</span><span class="p">[:,:]</span> <span class="o">=</span> <span class="n">vi_src</span><span class="o">.</span><span class="n">ReadAsArray</span><span class="p">(</span><span class="n">xOff</span><span class="p">,</span> <span class="n">yOff</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+<span class="n">vi_np</span> <span class="o">=</span> <span class="n">vi_src</span><span class="o">.</span><span class="n">ReadAsArray</span><span class="p">(</span><span class="n">xOff</span><span class="p">,</span> <span class="n">yOff</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
 
 <span class="c"># QA</span>
 <span class="n">QA_src</span> <span class="o">=</span> <span class="n">gdal</span><span class="o">.</span><span class="n">Open</span><span class="p">(</span><span class="n">sds</span><span class="p">[</span><span class="mi">11</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-<span class="n">QA_np</span><span class="p">[:,:]</span> <span class="o">=</span> <span class="n">QA_src</span><span class="o">.</span><span class="n">ReadAsArray</span><span class="p">(</span><span class="n">xOff</span><span class="p">,</span> <span class="n">yOff</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
+<span class="n">QA_np</span> <span class="o">=</span> <span class="n">QA_src</span><span class="o">.</span><span class="n">ReadAsArray</span><span class="p">(</span><span class="n">xOff</span><span class="p">,</span> <span class="n">yOff</span><span class="p">,</span> <span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="p">)</span>
 
 
 <span class="c"># Let&#39;s take a quick look at the dimension of that first array</span>
@@ -382,7 +378,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[53]:</div>
+<div class="prompt input_prompt">In&nbsp;[12]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="c"># Perform value replacement and drop QA layer</span>
@@ -408,7 +404,7 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 <div class="input">
-<div class="prompt input_prompt">In&nbsp;[54]:</div>
+<div class="prompt input_prompt">In&nbsp;[13]:</div>
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython2"><pre><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="kn">as</span> <span class="nn">plt</span>
@@ -1855,7 +1851,10 @@ TuY5/3+XaHkR8ugfwk8Ce7/HQ6iWNIV8LB/n5E9MOxOp+B4S5jZ8HLCTcd7zUPnTdhTy+5J5/2Sd
 
 <span class="k">def</span> <span class="nf">makeFileName</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">suffix</span><span class="p">,</span> <span class="n">ext</span> <span class="o">=</span> <span class="s">&quot;tif&quot;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Don&#39;t put the period before the extension</span>
+<span class="sd">    Generate a new file name by appending a suffix and changing the extension of an input file name </span>
+<span class="sd">    :param x: string, input file name</span>
+<span class="sd">    :param suffix: string, suffix to be placed just before file extension (e.g., &#39;NDVI&#39;)</span>
+<span class="sd">    :param ext: string, extension. Don&#39;t put the period before the extension</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">base</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">splitext</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">x</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">base</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">suffix</span> <span class="o">+</span> <span class="s">&#39;.&#39;</span> <span class="o">+</span> <span class="n">ext</span>

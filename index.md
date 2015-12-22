@@ -7,3 +7,4 @@ This is a list of tutorials about using python and the associated modules (gdal,
 
 # List of tutorials
 - [Calculating NDVI using rasterio](./NDVI_calc.html)
+- [Pre-process MODIS data with gdal](./modisPreProcess.html)
